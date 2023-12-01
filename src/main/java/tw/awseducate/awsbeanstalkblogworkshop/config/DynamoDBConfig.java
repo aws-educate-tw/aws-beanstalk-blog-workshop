@@ -1,9 +1,6 @@
 package tw.awseducate.awsbeanstalkblogworkshop.config;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,38 +16,19 @@ public class DynamoDBConfig {
   @Value("${aws.region}")
   private String awsRegion;
 
-  @Value("${aws.dynamodb.accessKey}")
-  private String dynamodbAccessKey;
-
-  @Value("${aws.dynamodb.secretKey}")
-  private String dynamodbSecretKey;
-
-  @Value("${aws.dynamodb.sessionToken}")
-  private String dynamodbSessionToken;
-
   @Bean
   public DynamoDBMapper dynamoDBMapper() {
-    return new DynamoDBMapper(buildAmazonDynamoDB());
-  }
+    AmazonDynamoDBClientBuilder clientBuilder = AmazonDynamoDBClientBuilder.standard();
 
-  private AmazonDynamoDB buildAmazonDynamoDB() {
-    return AmazonDynamoDBClientBuilder
-        .standard()
-        .withEndpointConfiguration(
-            new AwsClientBuilder.EndpointConfiguration(
-                dynamodbEndpoint,
-                awsRegion
-            )
-        )
-        .withCredentials(
-            new AWSStaticCredentialsProvider(
-                new BasicSessionCredentials(
-                    dynamodbAccessKey,
-                    dynamodbSecretKey,
-                    dynamodbSessionToken
-                )
-            )
-        )
-        .build();
+    if (dynamodbEndpoint != null && !dynamodbEndpoint.isEmpty()) {
+      clientBuilder.withEndpointConfiguration(
+          new AwsClientBuilder.EndpointConfiguration(
+              dynamodbEndpoint,
+              awsRegion
+          )
+      );
+    }
+    return new DynamoDBMapper(clientBuilder.build());
   }
 }
+
