@@ -25,7 +25,7 @@ public class DynamoDBConfig {
   @Value("${aws.dynamodb.secretKey}")
   private String dynamodbSecretKey;
 
-  @Value("${aws.dynamo.sessionToken}")
+  @Value("${aws.dynamodb.sessionToken}")
   private String dynamodbSessionToken;
 
   @Bean
