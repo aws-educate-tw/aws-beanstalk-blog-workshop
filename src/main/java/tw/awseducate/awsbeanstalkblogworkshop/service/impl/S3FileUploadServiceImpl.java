@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +16,21 @@ import tw.awseducate.awsbeanstalkblogworkshop.service.S3FileUploadService;
 import tw.awseducate.awsbeanstalkblogworkshop.util.UuidGenerator;
 
 @Service
-@AllArgsConstructor
 public class S3FileUploadServiceImpl implements S3FileUploadService {
 
-  private final UuidGenerator uuidGenerator;
-  private final AmazonS3 amazonS3Client;
-
-  @Value("${aws.s3.bucketName}")
   private String bucketName;
+  private UuidGenerator uuidGenerator;
+  private AmazonS3 amazonS3Client;
+
+  @Autowired
+  public S3FileUploadServiceImpl(@Value("${aws.s3.bucketName}") String bucketName,
+      UuidGenerator uuidGenerator,
+      AmazonS3 amazonS3Client) {
+    this.bucketName = bucketName;
+    this.uuidGenerator = uuidGenerator;
+    this.amazonS3Client = amazonS3Client;
+  }
+
 
   @Override
   public List<URL> uploadFile(List<MultipartFile> files) {
@@ -37,7 +44,8 @@ public class S3FileUploadServiceImpl implements S3FileUploadService {
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
 
-        amazonS3Client.putObject(new PutObjectRequest(bucketName, keyName, file.getInputStream(), metadata));
+        amazonS3Client.putObject(
+            new PutObjectRequest(bucketName, keyName, file.getInputStream(), metadata));
 
         URL fileUrl = amazonS3Client.getUrl(bucketName, keyName);
         urls.add(fileUrl);

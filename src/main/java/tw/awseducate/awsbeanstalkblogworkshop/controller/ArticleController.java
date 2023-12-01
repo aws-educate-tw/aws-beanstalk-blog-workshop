@@ -1,16 +1,21 @@
 package tw.awseducate.awsbeanstalkblogworkshop.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URL;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import tw.awseducate.awsbeanstalkblogworkshop.model.Article;
 import tw.awseducate.awsbeanstalkblogworkshop.service.ArticleService;
+import tw.awseducate.awsbeanstalkblogworkshop.service.S3FileUploadService;
 
 @AllArgsConstructor
 @RestController
@@ -18,10 +23,28 @@ import tw.awseducate.awsbeanstalkblogworkshop.service.ArticleService;
 public class ArticleController {
 
   private final ArticleService articleService;
+  private final S3FileUploadService s3FileUploadService;
 
   @PostMapping("/articles")
-  public ResponseEntity<Article> createArticle(@RequestBody Article article) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(articleService.createArticle(article));
+  public ResponseEntity<Article> createArticle(
+      @RequestParam(value = "image", required = false) List<MultipartFile> files,
+      @RequestParam(value = "data") String articleJson) throws JsonProcessingException {
+
+    // Convert data to Article object
+    ObjectMapper objectMapper = new ObjectMapper();
+    Article article = objectMapper.readValue(articleJson, Article.class);
+
+    Article createdArticle = articleService.createArticle(article);
+
+    // Upload the image to S3
+    List<URL> fileUrls = null;
+    if (files != null) {
+      s3FileUploadService.uploadFile(files);
+      fileUrls = s3FileUploadService.uploadFile(files);
+      createdArticle.setImageUrl(fileUrls.get(0).toString());
+    }
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdArticle);
   }
 
   @GetMapping("/articles")

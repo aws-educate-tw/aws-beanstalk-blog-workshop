@@ -23,4 +23,7 @@ public class Article {
 
   @DynamoDBAttribute(attributeName = "poster")
   private String poster;
+
+  @DynamoDBAttribute(attributeName = "imageUrl")
+  private String imageUrl;
 }

@@ -1,7 +1,8 @@
 package tw.awseducate.awsbeanstalkblogworkshop.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.AWSSessionCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -21,11 +22,17 @@ public class S3Config {
   @Value("${aws.region}")
   private String region;
 
+  @Value("${aws.s3.sessionToken}")
+  private String s3SessionToken;
+
   @Bean
   public AmazonS3 generateS3Client() {
-    BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKeyId, secretKey);
+    AWSSessionCredentials sessionCredentials = new BasicSessionCredentials(
+        accessKeyId, secretKey, s3SessionToken
+    );
+
     return AmazonS3ClientBuilder.standard()
-        .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+        .withCredentials(new AWSStaticCredentialsProvider(sessionCredentials))
         .withRegion(Regions.fromName(region))
         .build();
   }
