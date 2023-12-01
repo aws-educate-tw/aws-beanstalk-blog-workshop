@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
+import java.time.ZonedDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,10 @@ public class Article {
 
   @DynamoDBAttribute(attributeName = "imageUrl")
   private String imageUrl;
+
+  @DynamoDBAttribute(attributeName = "createAt")
+  private String createAt;
+
+  @DynamoDBAttribute(attributeName = "updateAt")
+  private String updateAt;
 }

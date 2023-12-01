@@ -34,16 +34,16 @@ public class ArticleController {
     ObjectMapper objectMapper = new ObjectMapper();
     Article article = objectMapper.readValue(articleJson, Article.class);
 
-    Article createdArticle = articleService.createArticle(article);
 
     // Upload the image to S3
     List<URL> fileUrls = null;
     if (files != null) {
       s3FileUploadService.uploadFile(files);
       fileUrls = s3FileUploadService.uploadFile(files);
-      createdArticle.setImageUrl(fileUrls.get(0).toString());
+      article.setImageUrl(fileUrls.get(0).toString());
     }
 
+    Article createdArticle = articleService.createArticle(article);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdArticle);
   }
 
