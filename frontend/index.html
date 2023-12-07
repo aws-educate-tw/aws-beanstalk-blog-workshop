@@ -69,6 +69,19 @@
         padding-bottom: 3rem;
       }
 
+      .blog_item .blog_image img {
+        width: 223.32px;
+        height: 148.06px;
+        object-fit: cover;
+      }
+
+      .blog_item .blog_details p {
+        max-height: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       form {
         max-width: 600px;
         width: 100%;
@@ -114,17 +127,37 @@
         background-color: transparent;
       }
 
+      .modal::-webkit-scrollbar {
+        display: none;
+      }
+
+      .modal {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
       #modal-image {
         width: 300px;
       }
 
       .modal-content {
-        overflow-y: auto; /* 在内容超出时显示垂直滚动条 */
-        max-height: 80vh; /* 模态内容的最大高度设置为视窗高度的 80% */
+        overflow-y: auto;
       }
 
-      .modal-dialog {
-        padding: 20px; /* 设置 modal-dialog 的内边距 */
+      #articleModal.modal {
+        display: none; /* Hidden by default */
+        z-index: 1050; /* Sit on top */
+        height: 100%;
+        border-radius: 8px;
+        background-color: transparent;
+      }
+
+      #editArticleModal.modal {
+        display: none; /* Hidden by default */
+        z-index: 1050; /* Sit on top */
+        height: 100%;
+        border-radius: 8px;
+        background-color: transparent;
       }
 
       #modal-poster {
@@ -212,8 +245,14 @@
     </section>
 
     <!-- Detail Modal -->
-    <div class="modal fade" id="articleModal" tabindex="-1" aria-hidden="true">
-      <span class="modal-dialog">
+    <div
+      class="modal fade"
+      id="articleModal"
+      role="dialog"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h3 class="modal-title" id="modal-title"></h3>
@@ -231,13 +270,22 @@
             <img id="modal-image" src="" alt="Article Image" />
             <p id="modal-content"></p>
           </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </span>
+      </div>
     </div>
 
     <!-- Edit Modal -->
     <div id="editArticleModal" class="modal fade" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Edit Article</h5>
