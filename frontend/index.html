@@ -259,6 +259,49 @@
       </div>
     </div>
 
+    <!-- Delete Modal -->
+    <div
+      class="modal fade"
+      id="deleteConfirmModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="deleteConfirmModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteConfirmModalLabel">
+              Confirm Delete
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            確定刪除文章 <span id="deleteArticleTitle"></span>?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              取消
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">
+              確認
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <!-- bootstrap -->
@@ -317,6 +360,26 @@
           });
       }
 
+      function deleteArticle(articleId, articleTitle) {
+        $("#deleteArticleTitle").text(articleTitle);
+        $("#deleteConfirmModal").modal("show");
+
+        $("#confirmDelete")
+          .off("click")
+          .on("click", function () {
+            fetch(BASE_URL + "/api/articles/" + articleId, {
+              method: "DELETE",
+            })
+              .then((response) => {
+                $("#deleteConfirmModal").modal("hide");
+                location.reload();
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          });
+      }
+
       document
         .getElementById("editArticleForm")
         .addEventListener("submit", function (e) {
@@ -351,16 +414,16 @@
           );
           blogItem.html(`
             <div class="blog_image" style="position: relative;">
-            <img class="img-fluid" src="${item.imageUrl}" alt="images not found">
-            <!-- Dropdown menu -->
-            <div class="dropdown" style="position: absolute; top: 10px; right: 10px;">
+                <img class="img-fluid" src="${item.imageUrl}" alt="images not found">
+                <div class="dropdown" style="position: absolute; top: 10px; right: 10px;">
                 <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton${item.articleId}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="icon ion-md-more"></i>
+                    <i class="icon ion-md-more"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton${item.articleId}">
-                <a class="dropdown-item" href="#" onclick="editArticle('${item.articleId}')">Edit</a>
+                    <a class="dropdown-item" href="#" onclick="editArticle('${item.articleId}')">Edit</a>
+                    <a class="dropdown-item" href="#" onclick="deleteArticle('${item.articleId}')">Delete</a>
                 </div>
-            </div>
+                </div>
             </div>
             <div class="blog_details">
             <div class="blog_title">
