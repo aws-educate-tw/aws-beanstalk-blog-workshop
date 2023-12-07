@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
 
     <script>
-      BASE_URL = "http://localhost:5000";
+      BASE_URL = "http://PutYourBaseUrlHere";
     </script>
 
     <!-- Google font -->
@@ -408,7 +408,7 @@
           .then((data) => {
             document.getElementById("modal-title").innerText = data.title;
             document.getElementById("modal-poster").innerText =
-              data.poster + " " + data.updateAt;
+              data.poster + " / " + data.updateAt;
             document.getElementById("modal-image").src = data.imageUrl;
             document.getElementById("modal-content").innerText = data.content;
             $("#articleModal").modal("show");
