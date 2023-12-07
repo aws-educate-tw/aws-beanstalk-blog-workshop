@@ -183,6 +183,7 @@
       </div>
     </section>
 
+    <!-- Detail Modal -->
     <div class="modal fade" id="articleModal" tabindex="-1" aria-hidden="true">
       <span class="modal-dialog">
         <div class="modal-content">
@@ -206,11 +207,63 @@
       </span>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editArticleModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Article</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="editArticleForm">
+              <input type="hidden" id="editArticleId" />
+              <div class="form-group">
+                <label for="editPoster">Poster:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editPoster"
+                  name="poster"
+                />
+              </div>
+              <div class="form-group">
+                <label for="editTitle">Title:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editTitle"
+                  name="title"
+                />
+              </div>
+              <div class="form-group">
+                <label for="editContent">Content:</label>
+                <textarea
+                  class="form-control"
+                  id="editContent"
+                  name="content"
+                  rows="4"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <!-- bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <!-- carousel -->
     <script
       type="text/javascript"
@@ -243,16 +296,51 @@
         fetch(BASE_URL + "/api/articles/" + articleId)
           .then((response) => response.json())
           .then((data) => {
-            // 使用 data 来填充弹出对话框的内容
             document.getElementById("modal-title").innerText = data.title;
             document.getElementById("modal-poster").innerText =
               data.poster + " " + data.updateAt;
             document.getElementById("modal-image").src = data.imageUrl;
             document.getElementById("modal-content").innerText = data.content;
-            // 显示弹出对话框
             $("#articleModal").modal("show");
           });
       }
+
+      function editArticle(articleId) {
+        fetch(BASE_URL + "/api/articles/" + articleId)
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("editArticleId").value = articleId;
+            document.getElementById("editPoster").value = data.poster;
+            document.getElementById("editTitle").value = data.title;
+            document.getElementById("editContent").value = data.content;
+            $("#editArticleModal").modal("show");
+          });
+      }
+
+      document
+        .getElementById("editArticleForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const articleId = document.getElementById("editArticleId").value;
+          const updatedData = {
+            poster: document.getElementById("editPoster").value,
+            title: document.getElementById("editTitle").value,
+            content: document.getElementById("editContent").value,
+          };
+
+          fetch(BASE_URL + "/api/articles/" + articleId, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData),
+          })
+            .then((response) => {
+              // Handle response
+              $("#editArticleModal").modal("hide");
+            })
+            .catch((error) => {
+              // Handle error
+            });
+        });
 
       function displayBlogContent(data) {
         var blogContainer = [];
@@ -262,23 +350,29 @@
             `<div class="blog_item" data-article-id="${item.articleId}">`
           );
           blogItem.html(`
-                        <div class="blog_image">
-                            <img class="img-fluid"
-                                src="${item.imageUrl}"
-                                alt="images not found">
-                            <span><i class="icon ion-md-create"></i></span>
-                        </div>
-                        <div class="blog_details">
-                            <div class="blog_title">
-                                <h5><a href="#">${item.title}</a></h5>
-                            </div>
-                            <ul>
-                                <li><i class="icon ion-md-person"></i>${item.poster}</li>
-                                <li><i class="icon ion-md-calendar"></i>${item.createAt}</li>
-                            </ul>
-                            <p>${item.content}</p>
-                        </div>
-                `);
+            <div class="blog_image" style="position: relative;">
+            <img class="img-fluid" src="${item.imageUrl}" alt="images not found">
+            <!-- Dropdown menu -->
+            <div class="dropdown" style="position: absolute; top: 10px; right: 10px;">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton${item.articleId}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="icon ion-md-more"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton${item.articleId}">
+                <a class="dropdown-item" href="#" onclick="editArticle('${item.articleId}')">Edit</a>
+                </div>
+            </div>
+            </div>
+            <div class="blog_details">
+            <div class="blog_title">
+                <h5><a href="#">${item.title}</a></h5>
+            </div>
+            <ul>
+                <li><i class="icon ion-md-person"></i>${item.poster}</li>
+                <li><i class="icon ion-md-calendar"></i>${item.createAt}</li>
+            </ul>
+            <p>${item.content}</p>
+            </div>
+        `);
 
           blogItem.find(".blog_title h5 a").click(function (e) {
             e.preventDefault();
