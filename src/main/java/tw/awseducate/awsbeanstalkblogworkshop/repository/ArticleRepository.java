@@ -18,6 +18,9 @@ public class ArticleRepository {
     dynamoDBMapper.save(article);
   }
 
+  public Article getArticleById(String articleId) {
+    return dynamoDBMapper.load(Article.class, articleId);
+  }
 
   public List<Article> getArticleList() {
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();

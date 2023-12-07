@@ -10,6 +10,8 @@ public interface ArticleService {
 
   List<Article> getArticleList();
 
-  Article updateArticle(UpdateArticleRequestDto updateArticleRequestDto);
+  Article getArticleById(String articleId);
+
+  Article updateArticle(String articleId, UpdateArticleRequestDto updateArticleRequestDto);
 
 }

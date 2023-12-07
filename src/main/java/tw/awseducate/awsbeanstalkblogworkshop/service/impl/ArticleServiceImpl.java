@@ -4,6 +4,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.modelmapper.Conditions;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import tw.awseducate.awsbeanstalkblogworkshop.dto.UpdateArticleRequestDto;
 import tw.awseducate.awsbeanstalkblogworkshop.model.Article;
@@ -19,6 +21,7 @@ public class ArticleServiceImpl implements ArticleService {
   private final ArticleRepository articleRepository;
   private final UuidGenerator uuidGenerator;
   private final CustomDateFormatter customDateFormatter;
+  private final ModelMapper modelMapper;
 
   @Override
   public Article createArticle(Article article) {
@@ -41,12 +44,16 @@ public class ArticleServiceImpl implements ArticleService {
   }
 
   @Override
-  public Article updateArticle(UpdateArticleRequestDto updateArticleRequestDto) {
-    Article article = articleRepository.getArticleById(updateArticleRequestDto.getArticleId());
+  public Article getArticleById(String articleId) {
+    return articleRepository.getArticleById(articleId);
+  }
+
+  @Override
+  public Article updateArticle(String articleId, UpdateArticleRequestDto updateArticleRequestDto) {
+    Article article = getArticleById(articleId);
     if (article != null) {
-      article.setTitle(updateArticleRequestDto.getTitle());
-      article.setContent(updateArticleRequestDto.getContent());
-      article.setPoster(updateArticleRequestDto.getPoster());
+      modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+      modelMapper.map(updateArticleRequestDto, article);
 
       ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT+8"));
       article.setUpdateAt(customDateFormatter.formatZonedDateTime(now));
