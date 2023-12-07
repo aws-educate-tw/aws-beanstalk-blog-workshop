@@ -14,14 +14,24 @@ public class ArticleRepository {
   private final DynamoDBMapper dynamoDBMapper;
 
 
-  public Article createArticle(Article article) {
+  public void saveArticle(Article article) {
     dynamoDBMapper.save(article);
-    return article;
   }
 
+  public Article getArticleById(String articleId) {
+    return dynamoDBMapper.load(Article.class, articleId);
+  }
 
   public List<Article> getArticleList() {
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
     return dynamoDBMapper.scan(Article.class, scanExpression);
   }
+
+  public void deleteArticleById(String articleId) {
+    Article article = getArticleById(articleId);
+
+    if (article != null)
+      dynamoDBMapper.delete(article);
+  }
+
 }

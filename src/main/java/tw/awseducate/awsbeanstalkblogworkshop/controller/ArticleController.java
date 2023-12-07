@@ -7,12 +7,17 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import tw.awseducate.awsbeanstalkblogworkshop.dto.UpdateArticleRequestDto;
 import tw.awseducate.awsbeanstalkblogworkshop.model.Article;
 import tw.awseducate.awsbeanstalkblogworkshop.service.ArticleService;
 import tw.awseducate.awsbeanstalkblogworkshop.service.S3FileUploadService;
@@ -34,7 +39,6 @@ public class ArticleController {
     ObjectMapper objectMapper = new ObjectMapper();
     Article article = objectMapper.readValue(articleJson, Article.class);
 
-
     // Upload the image to S3
     List<URL> fileUrls = null;
     if (files != null) {
@@ -51,5 +55,26 @@ public class ArticleController {
   public ResponseEntity<List<Article>> getArticleList() {
 
     return ResponseEntity.status(HttpStatus.OK).body(articleService.getArticleList());
+  }
+
+  @GetMapping("/articles/{articleId}")
+  public ResponseEntity<Article> getArticleById(@PathVariable String articleId) {
+
+    return ResponseEntity.status(HttpStatus.OK).body(articleService.getArticleById(articleId));
+  }
+
+  @PatchMapping("/articles/{articleId}")
+  public ResponseEntity<Article> updateArticle(
+      @PathVariable String articleId,
+      @RequestBody UpdateArticleRequestDto updateArticleRequestDto) {
+
+
+    return ResponseEntity.status(HttpStatus.OK).body(articleService.updateArticle(articleId, updateArticleRequestDto));
+  }
+
+  @DeleteMapping("/articles/{articleId}")
+  public ResponseEntity<String> deleteArticleById(@PathVariable String articleId) {
+    articleService.deleteArticleById(articleId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
   }
 }
