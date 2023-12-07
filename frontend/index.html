@@ -42,6 +42,10 @@
         overflow-y: hidden;
       }
 
+      button[disabled] {
+        opacity: 0.65;
+      }
+
       ::-webkit-scrollbar {
         width: 8px;
       }
@@ -159,22 +163,46 @@
         <!-- <div class="card"> -->
         <form id="BlogForm">
           <label for="poster">姓名:</label>
-          <textarea id="poster" name="poster" rows="1" required></textarea>
-
-          <label for="title">標題:</label>
-          <textarea id="title" name="title" rows="1" required></textarea>
-
-          <label for="content">文章:</label>
-          <textarea id="content" name="content" rows="4" required></textarea>
-
-          <label for="image">上傳圖片:</label>
           <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
+            id="poster"
+            class="form-control"
+            name="poster"
+            rows="1"
             required
           />
+
+          <label for="title">標題:</label>
+          <input
+            id="title"
+            class="form-control"
+            name="title"
+            rows="1"
+            required
+          />
+
+          <label for="content">文章:</label>
+          <textarea
+            id="content"
+            class="form-control"
+            name="content"
+            rows="4"
+            required
+          ></textarea>
+
+          <label for="image">上傳圖片:</label>
+          <div class="input-group">
+            <div class="custom-file">
+              <input
+                type="file"
+                class="custom-file-input"
+                id="image"
+                name="image"
+                accept="image/*"
+                required
+              />
+              <label class="custom-file-label" for="image">選擇文件</label>
+            </div>
+          </div>
 
           <hr />
           <button type="submit">提交</button>
@@ -225,7 +253,7 @@
           <div class="modal-body">
             <form id="editArticleForm">
               <input type="hidden" id="editArticleId" />
-              <div class="form-group">
+              <div>
                 <label for="editPoster">Poster:</label>
                 <input
                   type="text"
@@ -234,7 +262,7 @@
                   name="poster"
                 />
               </div>
-              <div class="form-group">
+              <div>
                 <label for="editTitle">Title:</label>
                 <input
                   type="text"
@@ -243,7 +271,7 @@
                   name="title"
                 />
               </div>
-              <div class="form-group">
+              <div>
                 <label for="editContent">Content:</label>
                 <textarea
                   class="form-control"
@@ -270,31 +298,22 @@
     >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="deleteConfirmModalLabel">
-              Confirm Delete
-            </h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
           <div class="modal-body">
-            確定刪除文章 <span id="deleteArticleTitle"></span>?
+            <b>確定刪除文章 <span id="deleteArticleTitle"></span>?</b>
           </div>
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary btn-sm"
               data-dismiss="modal"
             >
               取消
             </button>
-            <button type="button" class="btn btn-danger" id="confirmDelete">
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              id="confirmDelete"
+            >
               確認
             </button>
           </div>
@@ -358,6 +377,34 @@
             document.getElementById("editContent").value = data.content;
             $("#editArticleModal").modal("show");
           });
+
+        $("#editArticleForm")
+          .off("submit")
+          .on("submit", function (e) {
+            e.preventDefault();
+            var submitButton = $(this).find('button[type="submit"]');
+            submitButton.prop("disabled", true).css("opacity", "0.65");
+
+            var updatedData = {
+              poster: document.getElementById("editPoster").value,
+              title: document.getElementById("editTitle").value,
+              content: document.getElementById("editContent").value,
+            };
+
+            fetch(BASE_URL + "/api/articles/" + articleId, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedData),
+            })
+              .then((response) => {
+                $("#editArticleModal").modal("hide");
+                location.reload();
+              })
+              .catch((error) => {
+                console.log(error);
+                submitButton.prop("disabled", false).css("opacity", "1");
+              });
+          });
       }
 
       function deleteArticle(articleId, articleTitle) {
@@ -367,6 +414,9 @@
         $("#confirmDelete")
           .off("click")
           .on("click", function () {
+            var deleteButton = $(this);
+            deleteButton.prop("disabled", true).css("opacity", "0.65");
+
             fetch(BASE_URL + "/api/articles/" + articleId, {
               method: "DELETE",
             })
@@ -376,6 +426,7 @@
               })
               .catch((error) => {
                 console.log(error);
+                deleteButton.prop("disabled", false).css("opacity", "1");
               });
           });
       }
@@ -483,47 +534,50 @@
 
       $("#BlogForm").submit(function (event) {
         event.preventDefault();
-        alert("上傳中...");
+        var submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop("disabled", true);
 
         var formData = new FormData(this);
-
-        // Construct JSON object
         var jsonData = {
           poster: $("#poster").val(),
           title: $("#title").val(),
           content: $("#content").val(),
         };
 
-        // Convert JSON object to a FormData object
         var jsonFormData = new FormData();
         jsonFormData.append("data", JSON.stringify(jsonData));
-
-        // Append the image file to the FormData object
         jsonFormData.append("image", formData.get("image"));
 
         $.ajax({
           url: BASE_URL + "/api/articles",
           type: "POST",
           data: jsonFormData,
-          processData: false, // important
-          contentType: false, // important
+          processData: false,
+          contentType: false,
           success: function (response) {
             console.log("Form submitted successfully:", response);
             location.reload();
           },
           error: function (xhr, status, error) {
-            var err = eval("(" + xhr.responseText + ")");
-            console.log(err.Message);
+            alert("Error occurred:", xhr.status, error);
+            submitButton.prop("disabled", false);
           },
         });
       });
 
-      // 假设您已经为每个卡片设置了 data-article-id 属性
       document.querySelectorAll(".article-card").forEach((card) => {
         card.addEventListener("click", () => {
           const articleId = card.getAttribute("data-article-id");
           getArticleDetails(articleId);
         });
+      });
+
+      $("#image").on("change", function () {
+        var fileName = $(this).val().split("\\").pop();
+        $(this)
+          .siblings(".custom-file-label")
+          .addClass("selected")
+          .html(fileName);
       });
     </script>
   </body>
