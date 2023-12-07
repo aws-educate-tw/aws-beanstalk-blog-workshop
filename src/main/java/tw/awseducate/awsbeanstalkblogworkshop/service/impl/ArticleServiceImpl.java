@@ -63,4 +63,9 @@ public class ArticleServiceImpl implements ArticleService {
     return null;
   }
 
+  @Override
+  public void deleteArticleById(String articleId) {
+    articleRepository.deleteArticleById(articleId);
+  }
+
 }

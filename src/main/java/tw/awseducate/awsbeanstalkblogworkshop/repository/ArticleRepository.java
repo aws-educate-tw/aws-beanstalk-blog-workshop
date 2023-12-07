@@ -27,4 +27,11 @@ public class ArticleRepository {
     return dynamoDBMapper.scan(Article.class, scanExpression);
   }
 
+  public void deleteArticleById(String articleId) {
+    Article article = getArticleById(articleId);
+
+    if (article != null)
+      dynamoDBMapper.delete(article);
+  }
+
 }

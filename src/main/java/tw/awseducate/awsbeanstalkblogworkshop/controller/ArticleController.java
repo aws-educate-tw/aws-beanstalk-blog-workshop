@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,5 +70,11 @@ public class ArticleController {
 
 
     return ResponseEntity.status(HttpStatus.OK).body(articleService.updateArticle(articleId, updateArticleRequestDto));
+  }
+
+  @DeleteMapping("/articles/{articleId}")
+  public ResponseEntity<String> deleteArticleById(@PathVariable String articleId) {
+    articleService.deleteArticleById(articleId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
   }
 }
