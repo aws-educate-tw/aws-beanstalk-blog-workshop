@@ -14,9 +14,8 @@ public class ArticleRepository {
   private final DynamoDBMapper dynamoDBMapper;
 
 
-  public Article createArticle(Article article) {
+  public void saveArticle(Article article) {
     dynamoDBMapper.save(article);
-    return article;
   }
 
 
@@ -24,4 +23,5 @@ public class ArticleRepository {
     DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
     return dynamoDBMapper.scan(Article.class, scanExpression);
   }
+
 }
